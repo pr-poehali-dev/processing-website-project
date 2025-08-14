@@ -6,6 +6,8 @@ import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [transferAmount, setTransferAmount] = useState('');
+  const [selectedAccount, setSelectedAccount] = useState('');
 
   // Mock data for transactions
   const recentTransactions = [
@@ -40,8 +42,242 @@ const Index = () => {
     }
   };
 
+  // Mock data for accounts
+  const accounts = [
+    { id: '1', name: 'Основной счёт', balance: '2,450,320', currency: '₽', type: 'main' },
+    { id: '2', name: 'Резервный счёт', balance: '856,740', currency: '₽', type: 'reserve' },
+    { id: '3', name: 'USD Account', balance: '25,840', currency: '$', type: 'currency' },
+    { id: '4', name: 'Транзитный счёт', balance: '124,500', currency: '₽', type: 'transit' },
+  ];
+
+  const quickAmounts = ['1000', '5000', '10000', '25000', '50000', '100000'];
+
+  const handleTransfer = (type: 'send' | 'receive') => {
+    console.log(`${type} transfer:`, { amount: transferAmount, account: selectedAccount });
+    setTransferAmount('');
+    setSelectedAccount('');
+  };
+
   const renderContent = () => {
     switch (activeSection) {
+      case 'transfers':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold text-foreground">Переводы</h2>
+            
+            {/* Account Balances */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {accounts.map((account) => (
+                <Card key={account.id} className="hover:shadow-lg transition-shadow duration-200">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium text-sm">{account.name}</h3>
+                        <Badge variant="outline" className="text-xs">
+                          {account.type === 'main' ? 'Основной' : 
+                           account.type === 'reserve' ? 'Резерв' :
+                           account.type === 'currency' ? 'Валютный' : 'Транзит'}
+                        </Badge>
+                      </div>
+                      <p className="text-2xl font-bold">{account.balance} {account.currency}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Transfer Operations */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Send Money */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Icon name="ArrowUpRight" size={20} className="text-red-500" />
+                    <span>Отправить перевод</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Счёт списания</label>
+                    <select 
+                      className="w-full px-3 py-2 border rounded-md bg-background"
+                      value={selectedAccount}
+                      onChange={(e) => setSelectedAccount(e.target.value)}
+                    >
+                      <option value="">Выберите счёт</option>
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.name} - {account.balance} {account.currency}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Сумма перевода</label>
+                    <input 
+                      type="number"
+                      className="w-full px-3 py-2 border rounded-md"
+                      placeholder="Введите сумму"
+                      value={transferAmount}
+                      onChange={(e) => setTransferAmount(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Быстрые суммы</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {quickAmounts.map((amount) => (
+                        <Button
+                          key={amount}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setTransferAmount(amount)}
+                          className="text-xs"
+                        >
+                          {amount} ₽
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Получатель</label>
+                    <input 
+                      className="w-full px-3 py-2 border rounded-md"
+                      placeholder="Номер карты или счёта"
+                    />
+                  </div>
+
+                  <Button 
+                    className="w-full bg-red-500 hover:bg-red-600"
+                    onClick={() => handleTransfer('send')}
+                    disabled={!transferAmount || !selectedAccount}
+                  >
+                    <Icon name="ArrowUpRight" size={16} className="mr-2" />
+                    Отправить перевод
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Receive Money */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Icon name="ArrowDownLeft" size={20} className="text-green-500" />
+                    <span>Принять перевод</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Счёт зачисления</label>
+                    <select 
+                      className="w-full px-3 py-2 border rounded-md bg-background"
+                      value={selectedAccount}
+                      onChange={(e) => setSelectedAccount(e.target.value)}
+                    >
+                      <option value="">Выберите счёт</option>
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.name} - {account.balance} {account.currency}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Ожидаемая сумма</label>
+                    <input 
+                      type="number"
+                      className="w-full px-3 py-2 border rounded-md"
+                      placeholder="Введите сумму"
+                      value={transferAmount}
+                      onChange={(e) => setTransferAmount(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Быстрые суммы</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {quickAmounts.map((amount) => (
+                        <Button
+                          key={amount}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setTransferAmount(amount)}
+                          className="text-xs"
+                        >
+                          {amount} ₽
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <p className="text-sm font-medium mb-2">Реквизиты для перевода:</p>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>Номер карты: 2202 2020 **** 5847</p>
+                      <p>Номер счёта: 40817810099910004312</p>
+                      <p>БИК: 044525225</p>
+                    </div>
+                  </div>
+
+                  <Button 
+                    className="w-full bg-green-500 hover:bg-green-600"
+                    onClick={() => handleTransfer('receive')}
+                    disabled={!transferAmount || !selectedAccount}
+                  >
+                    <Icon name="ArrowDownLeft" size={16} className="mr-2" />
+                    Ожидать перевод
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Transfers */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Последние переводы</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { id: '1', type: 'sent', amount: '15,000 ₽', recipient: 'Иван И.', time: '2 мин назад', status: 'completed' },
+                    { id: '2', type: 'received', amount: '8,500 ₽', sender: 'Мария П.', time: '15 мин назад', status: 'completed' },
+                    { id: '3', type: 'sent', amount: '25,000 ₽', recipient: 'ООО "Техника"', time: '1 час назад', status: 'pending' },
+                  ].map((transfer) => (
+                    <div key={transfer.id} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          transfer.type === 'sent' ? 'bg-red-100' : 'bg-green-100'
+                        }`}>
+                          <Icon 
+                            name={transfer.type === 'sent' ? 'ArrowUpRight' : 'ArrowDownLeft'} 
+                            size={16} 
+                            className={transfer.type === 'sent' ? 'text-red-600' : 'text-green-600'} 
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium">
+                            {transfer.type === 'sent' ? `Кому: ${transfer.recipient}` : `От: ${transfer.sender}`}
+                          </p>
+                          <p className="text-sm text-muted-foreground">{transfer.time}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{transfer.amount}</p>
+                        <Badge className={getStatusColor(transfer.status)}>
+                          {getStatusText(transfer.status)}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
       case 'banks':
         return (
           <div className="space-y-6">
@@ -280,6 +516,7 @@ const Index = () => {
               {[
                 { key: 'dashboard', label: 'Дашборд', icon: 'LayoutDashboard' },
                 { key: 'banks', label: 'Банки', icon: 'Building2' },
+                { key: 'transfers', label: 'Переводы', icon: 'ArrowRightLeft' },
                 { key: 'history', label: 'История', icon: 'History' },
                 { key: 'payments', label: 'Платежи', icon: 'Send' },
               ].map((item) => (
