@@ -25,7 +25,7 @@ const Index = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'success': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'pending': return 'bg-blue-100 text-blue-800';
       case 'failed': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -273,7 +273,7 @@ const Index = () => {
               <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
                 <Icon name="CreditCard" size={20} className="text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-semibold text-foreground">Payment Processing</h1>
+              <h1 className="text-xl font-semibold text-foreground">Onfocus</h1>
             </div>
             
             <nav className="flex items-center space-x-1">
